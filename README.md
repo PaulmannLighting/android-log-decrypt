@@ -1,4 +1,4 @@
-# android-log-decoder
+# android-log-decrypt
 Decrypt Android logs
 
 ## Installation
