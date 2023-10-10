@@ -10,7 +10,7 @@ use std::process::exit;
 struct Args {
     #[arg(index = 1, help = "path to the log file")]
     filename: PathBuf,
-    #[arg(long, short, help = "decryption ")]
+    #[arg(long, short, help = "hexadecimal decryption key")]
     key: String,
 }
 
@@ -22,11 +22,11 @@ fn main() {
         error!("Could not read file: {:?}", args.filename);
         exit(1);
     });
-    let password = hex::decode(&args.key).unwrap_or_else(|_| {
+    let key = hex::decode(&args.key).unwrap_or_else(|_| {
         error!("Invalid hex key: {}", args.key);
         exit(2);
     });
-    let plain_text = decrypt(&ciphertext, &password).unwrap_or_else(|error| {
+    let plain_text = decrypt(&ciphertext, &key).unwrap_or_else(|error| {
         error!("{error}");
         exit(3);
     });
