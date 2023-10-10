@@ -9,6 +9,8 @@ use cbc::Decryptor;
 use header::{Header, HEADER_HEX_LEN};
 use hmac::{Hmac, Mac};
 use sha2::Sha256;
+use std::fs::read_to_string;
+use std::path::PathBuf;
 use std::str::FromStr;
 
 #[derive(Debug, Eq, PartialEq)]
@@ -73,5 +75,21 @@ impl FromStr for EncryptedLog {
                 hex::decode(&ciphertext[HEADER_HEX_LEN..])?,
             ))
         }
+    }
+}
+
+impl TryFrom<String> for EncryptedLog {
+    type Error = anyhow::Error;
+
+    fn try_from(text: String) -> Result<Self, Self::Error> {
+        Self::from_str(&text)
+    }
+}
+
+impl TryFrom<PathBuf> for EncryptedLog {
+    type Error = anyhow::Error;
+
+    fn try_from(filename: PathBuf) -> Result<Self, Self::Error> {
+        Self::try_from(read_to_string(filename)?)
     }
 }
