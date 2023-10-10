@@ -12,12 +12,12 @@ use sha2::Sha256;
 use std::str::FromStr;
 
 #[derive(Debug, Eq, PartialEq)]
-pub struct Cipher {
+pub struct EncryptedLog {
     header: Header,
     ciphertext: Vec<u8>,
 }
 
-impl Cipher {
+impl EncryptedLog {
     pub const fn new(header: Header, ciphertext: Vec<u8>) -> Self {
         Self { header, ciphertext }
     }
@@ -61,7 +61,7 @@ impl Cipher {
     }
 }
 
-impl FromStr for Cipher {
+impl FromStr for EncryptedLog {
     type Err = anyhow::Error;
 
     fn from_str(ciphertext: &str) -> Result<Self, Self::Err> {
