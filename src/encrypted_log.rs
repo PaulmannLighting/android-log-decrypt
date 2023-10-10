@@ -30,8 +30,8 @@ impl EncryptedLog {
     /// # Errors
     /// Returns an [`anyhow::Error`] on errors.
     pub fn validate(&self, key: &[u8]) -> anyhow::Result<()> {
-        let mut mac = Hmac::<Sha256>::new_from_slice(&self.key())?;
-        mac.update(&self.hash_data(key));
+        let mut mac = Hmac::<Sha256>::new_from_slice(hex::encode(self.header.key()).as_bytes())?;
+        mac.update(hex::encode(self.hash_data(key)).as_bytes());
         let bytes: Vec<u8> = mac.finalize().into_bytes().into_iter().collect();
         if bytes == self.header.hmac() {
             Ok(())
@@ -53,15 +53,7 @@ impl EncryptedLog {
             .to_vec())
     }
 
-    fn key(&self) -> Vec<u8> {
-        hex::encode(self.header.key()).as_bytes().to_vec()
-    }
-
     fn hash_data(&self, key: &[u8]) -> Vec<u8> {
-        hex::encode(self.hash_bytes(key)).as_bytes().to_vec()
-    }
-
-    fn hash_bytes(&self, key: &[u8]) -> Vec<u8> {
         self.header
             .iv()
             .iter()
