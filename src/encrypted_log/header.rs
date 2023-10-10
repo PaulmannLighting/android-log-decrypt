@@ -39,7 +39,7 @@ impl FromStr for Header {
                     .map_err(|_| anyhow!("IV out of bounds"))?,
                 hex::decode(&s[32..64])?
                     .try_into()
-                    .map_err(|_| anyhow!("HMAC key out of bounds"))?,
+                    .map_err(|_| anyhow!("Key out of bounds"))?,
                 hex::decode(&s[64..128])?
                     .try_into()
                     .map_err(|_| anyhow!("HMAC out of bounds"))?,
