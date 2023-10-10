@@ -8,7 +8,7 @@ use std::str::FromStr;
 /// # Errors
 /// Returns an [`anyhow::Error`] on errors.
 pub fn decrypt(cipher: &str, key: &[u8]) -> anyhow::Result<Vec<u8>> {
-    let cipher = EncryptedLog::from_str(cipher)?;
-    cipher.validate(key)?;
-    cipher.decrypt(key)
+    let encrypted_log = EncryptedLog::from_str(cipher)?;
+    encrypted_log.validate(key)?;
+    encrypted_log.decrypt(key)
 }
