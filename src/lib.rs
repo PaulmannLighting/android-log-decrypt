@@ -1,6 +1,6 @@
-mod encryped_log;
+mod encrypted_log;
 
-pub use encryped_log::EncryptedLog;
+pub use encrypted_log::EncryptedLog;
 use std::str::FromStr;
 
 /// Decrypt encrypted Android logs
