@@ -20,10 +20,15 @@ pub struct EncryptedLog {
 }
 
 impl EncryptedLog {
+    #[must_use]
     pub const fn new(header: Header, ciphertext: Vec<u8>) -> Self {
         Self { header, ciphertext }
     }
 
+    /// Validates the HMAC checksum
+    ///
+    /// # Errors
+    /// Returns an [`anyhow::Error`] on errors.
     pub fn validate(&self, key: &[u8]) -> anyhow::Result<()> {
         let mut mac = Hmac::<Sha256>::new_from_slice(&self.key())?;
         mac.update(&self.hash_data(key));
@@ -35,6 +40,10 @@ impl EncryptedLog {
         }
     }
 
+    /// Decrypts the ciphertext
+    ///
+    /// # Errors
+    /// Returns an [`anyhow::Error`] on errors.
     pub fn decrypt(&self, key: &[u8]) -> anyhow::Result<Vec<u8>> {
         let mut buf = self.ciphertext.clone();
         let cipher = Decryptor::<Aes256>::new(key.into(), self.header.iv().into());
