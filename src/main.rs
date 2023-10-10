@@ -8,7 +8,7 @@ use std::process::exit;
 
 #[derive(Debug, Parser)]
 struct Args {
-    #[arg(index = 1, help = "path to the log file")]
+    #[arg(index = 1, help = "path to the encrypted log file")]
     filename: PathBuf,
     #[arg(long, short, help = "hexadecimal decryption key")]
     key: String,
