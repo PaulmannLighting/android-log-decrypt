@@ -1,4 +1,5 @@
 use anyhow::anyhow;
+use hex::FromHex;
 use std::str::FromStr;
 
 pub const HEADER_HEX_LEN: usize = 128;
@@ -34,15 +35,9 @@ impl FromStr for Header {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         if s.len() == HEADER_HEX_LEN {
             Ok(Self::new(
-                hex::decode(&s[0..32])?
-                    .try_into()
-                    .map_err(|_| anyhow!("IV out of bounds"))?,
-                hex::decode(&s[32..64])?
-                    .try_into()
-                    .map_err(|_| anyhow!("Key out of bounds"))?,
-                hex::decode(&s[64..128])?
-                    .try_into()
-                    .map_err(|_| anyhow!("HMAC out of bounds"))?,
+                <[u8; 16]>::from_hex(&s[0..32])?,
+                <[u8; 16]>::from_hex(&s[32..64])?,
+                <[u8; 32]>::from_hex(&s[64..128])?,
             ))
         } else {
             Err(anyhow!("Invalid header size."))
