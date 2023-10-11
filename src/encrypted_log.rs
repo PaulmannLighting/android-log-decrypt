@@ -55,7 +55,7 @@ impl EncryptedLog {
     fn calculate_hmac(&self, key: &[u8]) -> anyhow::Result<Vec<u8>> {
         let mut mac = self.hmac()?;
         mac.update(hex::encode(self.hash_data(key)).as_bytes());
-        Ok(mac.finalize().into_bytes().into_iter().collect())
+        Ok(mac.finalize().into_bytes().to_vec())
     }
 
     fn hmac(&self) -> Result<CoreWrapper<HmacCore<Sha256>>, InvalidLength> {
