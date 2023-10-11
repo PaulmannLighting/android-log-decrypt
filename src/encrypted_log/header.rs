@@ -11,8 +11,8 @@ pub struct Header {
 }
 
 impl Header {
-    pub const fn new(iv: [u8; 16], ke: [u8; 16], hmac: [u8; 32]) -> Self {
-        Self { iv, key: ke, hmac }
+    pub const fn new(iv: [u8; 16], key: [u8; 16], hmac: [u8; 32]) -> Self {
+        Self { iv, key, hmac }
     }
 
     pub const fn iv(&self) -> &[u8; 16] {
