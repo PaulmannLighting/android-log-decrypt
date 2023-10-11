@@ -31,7 +31,10 @@ impl Header {
 impl FromHex for Header {
     type Error = anyhow::Error;
 
-    fn from_hex<T: AsRef<[u8]>>(hex: T) -> Result<Self, Self::Error> {
+    fn from_hex<T>(hex: T) -> Result<Self, Self::Error>
+    where
+        T: AsRef<[u8]>,
+    {
         Self::try_from(hex.as_ref())
     }
 }
