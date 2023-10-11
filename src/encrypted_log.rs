@@ -7,12 +7,10 @@ use anyhow::anyhow;
 use cbc::cipher::{BlockDecryptMut, InvalidLength};
 use cbc::Decryptor;
 use header::{Header, HEADER_HEX_LEN};
+use hex::FromHex;
 use hmac::digest::core_api::CoreWrapper;
 use hmac::{Hmac, HmacCore, Mac};
 use sha2::Sha256;
-use std::fs::read_to_string;
-use std::path::PathBuf;
-use std::str::FromStr;
 
 /// An encrypted log file
 #[derive(Debug, Eq, PartialEq)]
@@ -77,33 +75,25 @@ impl EncryptedLog {
     }
 }
 
-impl FromStr for EncryptedLog {
-    type Err = anyhow::Error;
+impl FromHex for EncryptedLog {
+    type Error = anyhow::Error;
 
-    fn from_str(ciphertext: &str) -> Result<Self, Self::Err> {
-        if ciphertext.len() > HEADER_HEX_LEN {
+    fn from_hex<T: AsRef<[u8]>>(hex: T) -> Result<Self, Self::Error> {
+        Self::try_from(hex.as_ref())
+    }
+}
+
+impl TryFrom<&[u8]> for EncryptedLog {
+    type Error = anyhow::Error;
+
+    fn try_from(hex: &[u8]) -> Result<Self, Self::Error> {
+        if hex.len() > HEADER_HEX_LEN {
             Ok(Self::new(
-                Header::from_str(&ciphertext[0..HEADER_HEX_LEN])?,
-                hex::decode(&ciphertext[HEADER_HEX_LEN..])?,
+                Header::from_hex(&hex[0..HEADER_HEX_LEN])?,
+                hex::decode(&hex[HEADER_HEX_LEN..])?,
             ))
         } else {
-            Err(anyhow!("Cipher text too short: {}", ciphertext.len()))
+            Err(anyhow!("Hex code too short: {}", hex.len()))
         }
-    }
-}
-
-impl TryFrom<String> for EncryptedLog {
-    type Error = anyhow::Error;
-
-    fn try_from(text: String) -> Result<Self, Self::Error> {
-        Self::from_str(&text)
-    }
-}
-
-impl TryFrom<PathBuf> for EncryptedLog {
-    type Error = anyhow::Error;
-
-    fn try_from(filename: PathBuf) -> Result<Self, Self::Error> {
-        Self::try_from(read_to_string(filename)?)
     }
 }

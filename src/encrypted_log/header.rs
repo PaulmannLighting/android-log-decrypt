@@ -1,6 +1,5 @@
 use anyhow::anyhow;
 use hex::FromHex;
-use std::str::FromStr;
 
 pub const HEADER_HEX_LEN: usize = 128;
 
@@ -29,15 +28,23 @@ impl Header {
     }
 }
 
-impl FromStr for Header {
-    type Err = anyhow::Error;
+impl FromHex for Header {
+    type Error = anyhow::Error;
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        if s.len() == HEADER_HEX_LEN {
+    fn from_hex<T: AsRef<[u8]>>(hex: T) -> Result<Self, Self::Error> {
+        Self::try_from(hex.as_ref())
+    }
+}
+
+impl TryFrom<&[u8]> for Header {
+    type Error = anyhow::Error;
+
+    fn try_from(hex: &[u8]) -> Result<Self, Self::Error> {
+        if hex.len() == HEADER_HEX_LEN {
             Ok(Self::new(
-                <[u8; 16]>::from_hex(&s[0..32])?,
-                <[u8; 16]>::from_hex(&s[32..64])?,
-                <[u8; 32]>::from_hex(&s[64..128])?,
+                <[u8; 16]>::from_hex(&hex[0..32])?,
+                <[u8; 16]>::from_hex(&hex[32..64])?,
+                <[u8; 32]>::from_hex(&hex[64..128])?,
             ))
         } else {
             Err(anyhow!("Invalid header size."))
