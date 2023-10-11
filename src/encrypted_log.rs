@@ -13,6 +13,7 @@ use std::fs::read_to_string;
 use std::path::PathBuf;
 use std::str::FromStr;
 
+/// An encrypted log file
 #[derive(Debug, Eq, PartialEq)]
 pub struct EncryptedLog {
     header: Header,
@@ -20,6 +21,7 @@ pub struct EncryptedLog {
 }
 
 impl EncryptedLog {
+    /// Creates a new encrypted log file from a header and ciphertext
     #[must_use]
     pub const fn new(header: Header, ciphertext: Vec<u8>) -> Self {
         Self { header, ciphertext }
