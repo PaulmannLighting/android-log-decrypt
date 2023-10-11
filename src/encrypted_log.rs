@@ -46,11 +46,10 @@ impl EncryptedLog {
     ///
     /// # Errors
     /// Returns an [`anyhow::Error`] on errors.
-    pub fn decrypt(&self, key: &[u8]) -> anyhow::Result<Vec<u8>> {
-        let mut buf = self.ciphertext.clone();
+    pub fn decrypt(mut self, key: &[u8]) -> anyhow::Result<Vec<u8>> {
         let cipher = Decryptor::<Aes256>::new(key.into(), self.header.iv().into());
         Ok(cipher
-            .decrypt_padded_mut::<Pkcs7>(&mut buf)
+            .decrypt_padded_mut::<Pkcs7>(&mut self.ciphertext)
             .map_err(|error| anyhow!("{error}"))?
             .to_vec())
     }
