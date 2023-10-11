@@ -7,7 +7,7 @@ use anyhow::anyhow;
 use cbc::cipher::{BlockDecryptMut, InvalidLength};
 use cbc::Decryptor;
 use header::{Header, HEADER_HEX_LEN};
-use hex::FromHex;
+use hex::{FromHex, ToHex};
 use hmac::digest::core_api::CoreWrapper;
 use hmac::{Hmac, HmacCore, Mac};
 use sha2::Sha256;
@@ -52,22 +52,14 @@ impl EncryptedLog {
 
     fn calculate_hmac(&self, key: &[u8]) -> anyhow::Result<Vec<u8>> {
         let mut mac = self.hmac()?;
-        mac.update(hex::encode(self.hash_data(key)).as_bytes());
+        mac.update(self.header.iv().encode_hex::<String>().as_bytes());
+        mac.update(self.ciphertext.encode_hex::<String>().as_bytes());
+        mac.update(key.encode_hex::<String>().as_bytes());
         Ok(mac.finalize().into_bytes().to_vec())
     }
 
     fn hmac(&self) -> Result<CoreWrapper<HmacCore<Sha256>>, InvalidLength> {
         Hmac::<Sha256>::new_from_slice(hex::encode(self.header.key()).as_bytes())
-    }
-
-    fn hash_data(&self, key: &[u8]) -> Vec<u8> {
-        self.header
-            .iv()
-            .iter()
-            .chain(self.ciphertext.iter())
-            .chain(key.iter())
-            .copied()
-            .collect()
     }
 
     fn cipher(&self, key: &[u8]) -> Decryptor<Aes256> {
