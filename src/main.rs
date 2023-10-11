@@ -18,12 +18,12 @@ fn main() {
     env_logger::init();
 
     let args = Args::parse();
-    let ciphertext = read_to_string(&args.filename).unwrap_or_else(|_| {
-        error!("Could not read file: {:?}", args.filename);
+    let ciphertext = read_to_string(&args.filename).unwrap_or_else(|error| {
+        error!("{error}");
         exit(1);
     });
-    let key = hex::decode(&args.key).unwrap_or_else(|_| {
-        error!("Invalid hex key: {}", args.key);
+    let key = hex::decode(&args.key).unwrap_or_else(|error| {
+        error!("{error}");
         exit(2);
     });
     let plain_text = decrypt(&ciphertext, &key).unwrap_or_else(|error| {
