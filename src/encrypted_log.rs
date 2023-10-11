@@ -68,13 +68,13 @@ impl FromStr for EncryptedLog {
     type Err = anyhow::Error;
 
     fn from_str(ciphertext: &str) -> Result<Self, Self::Err> {
-        if ciphertext.len() <= HEADER_HEX_LEN {
-            Err(anyhow!("Cipher text too short: {}", ciphertext.len()))
-        } else {
+        if ciphertext.len() > HEADER_HEX_LEN {
             Ok(Self::new(
                 Header::from_str(&ciphertext[0..HEADER_HEX_LEN])?,
                 hex::decode(&ciphertext[HEADER_HEX_LEN..])?,
             ))
+        } else {
+            Err(anyhow!("Cipher text too short: {}", ciphertext.len()))
         }
     }
 }
