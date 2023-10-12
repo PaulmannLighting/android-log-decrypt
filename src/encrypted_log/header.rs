@@ -25,14 +25,13 @@ impl Header {
     }
 }
 
+#[allow(clippy::unwrap_used, clippy::fallible_impl_from)]
 impl From<[u8; SIZE]> for Header {
     fn from(bytes: [u8; SIZE]) -> Self {
         Self::new(
-            bytes[0..16].try_into().unwrap_or_else(|_| unreachable!()),
-            bytes[16..32].try_into().unwrap_or_else(|_| unreachable!()),
-            bytes[32..SIZE]
-                .try_into()
-                .unwrap_or_else(|_| unreachable!()),
+            bytes[0..16].try_into().unwrap(),
+            bytes[16..32].try_into().unwrap(),
+            bytes[32..SIZE].try_into().unwrap(),
         )
     }
 }
