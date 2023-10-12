@@ -74,14 +74,14 @@ impl FromHex for EncryptedLog {
 impl TryFrom<&[u8]> for EncryptedLog {
     type Error = anyhow::Error;
 
-    fn try_from(hex: &[u8]) -> Result<Self, Self::Error> {
-        if hex.len() > SIZE {
+    fn try_from(bytes: &[u8]) -> Result<Self, Self::Error> {
+        if bytes.len() > SIZE {
             Ok(Self::new(
-                Header::from(<[u8; SIZE]>::try_from(&hex[0..SIZE])?),
-                hex[SIZE..].to_vec(),
+                Header::from(<[u8; SIZE]>::try_from(&bytes[0..SIZE])?),
+                bytes[SIZE..].to_vec(),
             ))
         } else {
-            Err(anyhow!("Hex code too short: {}", hex.len()))
+            Err(anyhow!("Too few bytes: {}", bytes.len()))
         }
     }
 }
