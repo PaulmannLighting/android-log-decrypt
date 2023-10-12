@@ -6,7 +6,7 @@ use aes::Aes256;
 use anyhow::anyhow;
 use cbc::cipher::BlockDecryptMut;
 use cbc::Decryptor;
-use header::{Header, HEADER_HEX_LEN};
+use header::{Header, SIZE};
 use hex::{FromHex, ToHex};
 use hmac::{Hmac, Mac};
 use sha2::Sha256;
@@ -67,7 +67,7 @@ impl FromHex for EncryptedLog {
     where
         T: AsRef<[u8]>,
     {
-        Self::try_from(hex.as_ref())
+        Self::try_from(Vec::<u8>::from_hex(hex.as_ref())?.as_slice())
     }
 }
 
@@ -75,10 +75,10 @@ impl TryFrom<&[u8]> for EncryptedLog {
     type Error = anyhow::Error;
 
     fn try_from(hex: &[u8]) -> Result<Self, Self::Error> {
-        if hex.len() > HEADER_HEX_LEN {
+        if hex.len() > SIZE {
             Ok(Self::new(
-                Header::from_hex(&hex[0..HEADER_HEX_LEN])?,
-                hex::decode(&hex[HEADER_HEX_LEN..])?,
+                Header::from(<[u8; SIZE]>::try_from(&hex[0..SIZE])?),
+                hex[SIZE..].to_vec(),
             ))
         } else {
             Err(anyhow!("Hex code too short: {}", hex.len()))
