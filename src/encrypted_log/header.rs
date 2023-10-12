@@ -30,7 +30,9 @@ impl From<[u8; SIZE]> for Header {
         Self::new(
             bytes[0..16].try_into().unwrap_or_else(|_| unreachable!()),
             bytes[16..32].try_into().unwrap_or_else(|_| unreachable!()),
-            bytes[32..64].try_into().unwrap_or_else(|_| unreachable!()),
+            bytes[32..SIZE]
+                .try_into()
+                .unwrap_or_else(|_| unreachable!()),
         )
     }
 }
