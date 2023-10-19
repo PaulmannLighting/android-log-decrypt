@@ -1,5 +1,6 @@
 mod encrypted_log;
 
+use anyhow::anyhow;
 pub use encrypted_log::EncryptedLog;
 use hex::FromHex;
 
@@ -9,6 +10,10 @@ use hex::FromHex;
 /// Returns an [`anyhow::Error`] on errors.
 pub fn decrypt(cipher: &str, key: &[u8]) -> anyhow::Result<Vec<u8>> {
     let encrypted_log = EncryptedLog::from_hex(cipher)?;
-    encrypted_log.validate(key)?;
-    encrypted_log.decrypt(key)
+
+    if !encrypted_log.validate(key)? {
+        return Err(anyhow!("Invalid HMAC."));
+    }
+
+    Ok(encrypted_log.decrypt(key)?)
 }

@@ -1,6 +1,6 @@
 mod header;
 
-use aes::cipher::block_padding::Pkcs7;
+use aes::cipher::block_padding::{Pkcs7, UnpadError};
 use aes::cipher::KeyIvInit;
 use aes::Aes256;
 use anyhow::anyhow;
@@ -8,6 +8,7 @@ use cbc::cipher::BlockDecryptMut;
 use cbc::Decryptor;
 use header::{Header, SIZE};
 use hex::{FromHex, ToHex};
+use hmac::digest::InvalidLength;
 use hmac::{Hmac, Mac};
 use sha2::Sha256;
 
@@ -28,35 +29,30 @@ impl EncryptedLog {
     /// Validates the HMAC checksum
     ///
     /// # Errors
-    /// Returns an [`anyhow::Error`] on errors.
-    pub fn validate(&self, key: &[u8]) -> anyhow::Result<()> {
-        if self.calculate_hmac(key)? == self.header.hmac() {
-            Ok(())
-        } else {
-            Err(anyhow!("Invalid HMAC"))
-        }
+    /// Returns [`InvalidLength`] on errors.
+    pub fn validate(&self, key: &[u8]) -> Result<bool, InvalidLength> {
+        Ok(self.calculate_hmac(key)? == self.header.hmac())
     }
 
     /// Decrypts the ciphertext
     ///
     /// # Errors
-    /// Returns an [`anyhow::Error`] on errors.
-    pub fn decrypt(mut self, key: &[u8]) -> anyhow::Result<Vec<u8>> {
-        Ok(
-            Decryptor::<Aes256>::new(key.into(), self.header.iv().into())
-                .decrypt_padded_mut::<Pkcs7>(&mut self.ciphertext)
-                .map_err(|error| anyhow!("{error}"))?
-                .to_vec(),
-        )
+    /// Returns an [`UnpadError`] on errors.
+    pub fn decrypt(mut self, key: &[u8]) -> Result<Vec<u8>, UnpadError> {
+        Decryptor::<Aes256>::new(key.into(), self.header.iv().into())
+            .decrypt_padded_mut::<Pkcs7>(&mut self.ciphertext)
+            .map(<[u8]>::to_vec)
     }
 
-    fn calculate_hmac(&self, key: &[u8]) -> anyhow::Result<Vec<u8>> {
-        let mut mac =
-            Hmac::<Sha256>::new_from_slice(self.header.key().encode_hex::<String>().as_bytes())?;
-        mac.update(self.header.iv().encode_hex::<String>().as_bytes());
-        mac.update(self.ciphertext.encode_hex::<String>().as_bytes());
-        mac.update(key.encode_hex::<String>().as_bytes());
-        Ok(mac.finalize().into_bytes().to_vec())
+    fn calculate_hmac(&self, key: &[u8]) -> Result<Vec<u8>, InvalidLength> {
+        Hmac::<Sha256>::new_from_slice(self.header.key().encode_hex::<String>().as_bytes()).map(
+            |mut mac| {
+                mac.update(self.header.iv().encode_hex::<String>().as_bytes());
+                mac.update(self.ciphertext.encode_hex::<String>().as_bytes());
+                mac.update(key.encode_hex::<String>().as_bytes());
+                mac.finalize().into_bytes().to_vec()
+            },
+        )
     }
 }
 
