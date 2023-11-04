@@ -11,7 +11,7 @@ use hex::FromHex;
 pub fn decrypt(cipher: &str, key: &[u8]) -> anyhow::Result<Vec<u8>> {
     let encrypted_log = EncryptedLog::from_hex(cipher)?;
 
-    if !encrypted_log.validate(key)? {
+    if !encrypted_log.is_hmac_valid(key)? {
         return Err(anyhow!("Invalid HMAC."));
     }
 

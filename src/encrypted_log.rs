@@ -12,7 +12,7 @@ use hmac::digest::InvalidLength;
 use hmac::{Hmac, Mac};
 use sha2::Sha256;
 
-/// An encrypted log file
+/// An encrypted log file.
 #[derive(Debug, Eq, PartialEq)]
 pub struct EncryptedLog {
     header: Header,
@@ -20,21 +20,21 @@ pub struct EncryptedLog {
 }
 
 impl EncryptedLog {
-    /// Creates a new encrypted log file from a header and ciphertext
+    /// Create a new encrypted log file from a header and ciphertext.
     #[must_use]
     pub const fn new(header: Header, ciphertext: Vec<u8>) -> Self {
         Self { header, ciphertext }
     }
 
-    /// Validates the HMAC checksum
+    /// Determine whether the HMAC checksum is valid.
     ///
     /// # Errors
     /// Returns [`InvalidLength`] on errors.
-    pub fn validate(&self, key: &[u8]) -> Result<bool, InvalidLength> {
+    pub fn is_hmac_valid(&self, key: &[u8]) -> Result<bool, InvalidLength> {
         Ok(self.calculate_hmac(key)? == self.header.hmac())
     }
 
-    /// Decrypts the ciphertext
+    /// Decrypt the ciphertext.
     ///
     /// # Errors
     /// Returns an [`UnpadError`] on errors.
