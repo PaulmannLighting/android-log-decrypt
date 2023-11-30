@@ -63,7 +63,7 @@ impl FromHex for EncryptedLog {
     where
         T: AsRef<[u8]>,
     {
-        Self::try_from(Vec::<u8>::from_hex(hex.as_ref())?.as_slice())
+        Self::try_from(Vec::<u8>::from_hex(hex)?.as_slice())
     }
 }
 
