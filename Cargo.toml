@@ -15,6 +15,7 @@ aes = "0.8.3"
 anyhow = "1.0.75"
 cbc = { version = "0.1.2", features = ["std"] }
 clap = { version = "4.4.6", features = ["derive"] }
+clap-stdin = "0.2.1"
 env_logger = "0.10.0"
 hex = "0.4.3"
 hmac = "0.12.1"
