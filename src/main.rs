@@ -2,6 +2,7 @@ use android_log_decrypt::decrypt;
 use clap::Parser;
 use clap_stdin::FileOrStdin;
 use log::error;
+use rpassword::prompt_password;
 use std::io::{stdout, Write};
 use std::process::exit;
 
@@ -10,7 +11,7 @@ struct Args {
     #[arg(index = 1, help = "path to the encrypted log file")]
     logfile: FileOrStdin,
     #[arg(long, short, help = "hexadecimal decryption key")]
-    key: String,
+    key: Option<String>,
 }
 
 fn main() {
@@ -18,7 +19,13 @@ fn main() {
 
     let args = Args::parse();
     let ciphertext = args.logfile.to_string();
-    let key = hex::decode(&args.key).unwrap_or_else(|error| {
+    let key = hex::decode(args.key.unwrap_or_else(|| {
+        prompt_password("Decryption key: ").unwrap_or_else(|error| {
+            error!("{error}");
+            exit(1)
+        })
+    }))
+    .unwrap_or_else(|error| {
         error!("{error}");
         exit(2);
     });
