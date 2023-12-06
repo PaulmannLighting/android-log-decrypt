@@ -6,7 +6,7 @@ use aes::Aes256;
 use anyhow::anyhow;
 use cbc::cipher::BlockDecryptMut;
 use cbc::Decryptor;
-use header::{Header, SIZE};
+use header::Header;
 use hex::{FromHex, ToHex};
 use hmac::digest::InvalidLength;
 use hmac::{Hmac, Mac};
@@ -71,10 +71,10 @@ impl TryFrom<&[u8]> for EncryptedLog {
     type Error = anyhow::Error;
 
     fn try_from(bytes: &[u8]) -> Result<Self, Self::Error> {
-        if bytes.len() > SIZE {
+        if bytes.len() > Header::size() {
             Ok(Self::new(
-                Header::from(<[u8; SIZE]>::try_from(&bytes[0..SIZE])?),
-                bytes[SIZE..].to_vec(),
+                Header::try_from(bytes)?,
+                bytes[Header::size()..].to_vec(),
             ))
         } else {
             Err(anyhow!("Too few bytes: {}", bytes.len()))
