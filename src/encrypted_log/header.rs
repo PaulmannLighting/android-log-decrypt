@@ -3,31 +3,35 @@ const KEY_SIZE: usize = 16;
 const HMAC_SIZE: usize = 32;
 pub const SIZE: usize = IV_SIZE + KEY_SIZE + HMAC_SIZE;
 
+pub type Iv = [u8; IV_SIZE];
+pub type Key = [u8; KEY_SIZE];
+pub type Hmac = [u8; HMAC_SIZE];
+
 #[derive(Debug, Eq, PartialEq)]
 pub struct Header {
-    iv: [u8; IV_SIZE],
-    key: [u8; KEY_SIZE],
-    hmac: [u8; HMAC_SIZE],
+    iv: Iv,
+    key: Key,
+    hmac: Hmac,
 }
 
 impl Header {
     #[must_use]
-    pub const fn new(iv: [u8; IV_SIZE], key: [u8; KEY_SIZE], hmac: [u8; HMAC_SIZE]) -> Self {
+    pub const fn new(iv: Iv, key: Key, hmac: Hmac) -> Self {
         Self { iv, key, hmac }
     }
 
     #[must_use]
-    pub const fn iv(&self) -> &[u8; IV_SIZE] {
+    pub const fn iv(&self) -> &Iv {
         &self.iv
     }
 
     #[must_use]
-    pub const fn key(&self) -> &[u8; KEY_SIZE] {
+    pub const fn key(&self) -> &Key {
         &self.key
     }
 
     #[must_use]
-    pub const fn hmac(&self) -> &[u8; HMAC_SIZE] {
+    pub const fn hmac(&self) -> &Hmac {
         &self.hmac
     }
 }
