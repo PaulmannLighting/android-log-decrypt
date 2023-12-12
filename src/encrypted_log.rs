@@ -71,13 +71,12 @@ impl TryFrom<&[u8]> for EncryptedLog {
     type Error = anyhow::Error;
 
     fn try_from(bytes: &[u8]) -> Result<Self, Self::Error> {
-        if bytes.len() > Header::size() {
-            Ok(Self::new(
-                Header::try_from(bytes)?,
-                bytes[Header::size()..].to_vec(),
-            ))
-        } else {
-            Err(anyhow!("Too few bytes: {}", bytes.len()))
-        }
+        Ok(Self::new(
+            Header::try_from(bytes)?,
+            bytes
+                .get(Header::size()..)
+                .ok_or_else(|| anyhow!("Too few bytes: {}", bytes.len()))?
+                .to_vec(),
+        ))
     }
 }

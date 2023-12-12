@@ -1,4 +1,4 @@
-use std::array::TryFromSliceError;
+use anyhow::anyhow;
 
 const IV_SIZE: usize = 16;
 const KEY_SIZE: usize = 16;
@@ -31,9 +31,13 @@ impl Header {
 }
 
 impl TryFrom<&[u8]> for Header {
-    type Error = TryFromSliceError;
+    type Error = anyhow::Error;
 
     fn try_from(bytes: &[u8]) -> Result<Self, Self::Error> {
-        <[u8; SIZE]>::try_from(&bytes[0..SIZE]).map(Self)
+        Ok(Self(<[u8; SIZE]>::try_from(
+            bytes
+                .get(0..SIZE)
+                .ok_or_else(|| anyhow!("Too new bytes: {}", bytes.len()))?,
+        )?))
     }
 }
