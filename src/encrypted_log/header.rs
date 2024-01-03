@@ -41,15 +41,15 @@ impl TryFrom<&[u8]> for Header {
         Ok(Self {
             iv: bytes
                 .get(0..KEY_SIZE)
-                .ok_or_else(|| anyhow!("Too new bytes: {}", bytes.len()))?
+                .ok_or_else(|| anyhow!("Too few bytes: {}", bytes.len()))?
                 .try_into()?,
             key: bytes
                 .get(KEY_SIZE..IV_SIZE + KEY_SIZE)
-                .ok_or_else(|| anyhow!("Too new bytes: {}", bytes.len()))?
+                .ok_or_else(|| anyhow!("Too few bytes: {}", bytes.len()))?
                 .try_into()?,
             hmac: bytes
                 .get(IV_SIZE + KEY_SIZE..SIZE)
-                .ok_or_else(|| anyhow!("Too new bytes: {}", bytes.len()))?
+                .ok_or_else(|| anyhow!("Too few bytes: {}", bytes.len()))?
                 .try_into()?,
         })
     }
