@@ -11,3 +11,7 @@ $ cargo build --release
 ```
 
 The built binary can be found under `target/release/android-log-decrypt{,.exe}`.
+
+## Contribution guidelines
+* Use `cargo fmt`
+* Use `cargo clippy -- -W clippy::pedantic -W clippy::nursery -W clippy::unwrap_used -W clippy::cargo`
