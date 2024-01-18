@@ -37,13 +37,16 @@ fn main() {
     env_logger::init();
 
     let args = Args::parse();
-    let ciphertext = args.logfile.to_string();
+    let ciphertext = args.logfile.clone().contents().unwrap_or_else(|error| {
+        error!("{error}");
+        exit(3)
+    });
     let plain_text = decrypt(&ciphertext, &args.key()).unwrap_or_else(|error| {
         error!("{error}");
-        exit(3);
+        exit(4);
     });
     stdout().write_all(&plain_text).unwrap_or_else(|error| {
         error!("{error}");
-        exit(4);
+        exit(5);
     });
 }
