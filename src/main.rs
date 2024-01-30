@@ -3,7 +3,7 @@ use clap::Parser;
 use clap_stdin::FileOrStdin;
 use log::error;
 use rpassword::prompt_password;
-use std::io::{stdout, Write};
+use std::io::{stdout, BufWriter, Write};
 use std::process::exit;
 
 #[derive(Debug, Parser)]
@@ -45,8 +45,10 @@ fn main() {
         error!("{error}");
         exit(4);
     });
-    stdout().write_all(&plain_text).unwrap_or_else(|error| {
-        error!("{error}");
-        exit(5);
-    });
+    BufWriter::new(stdout().lock())
+        .write_all(&plain_text)
+        .unwrap_or_else(|error| {
+            error!("{error}");
+            exit(5);
+        });
 }
